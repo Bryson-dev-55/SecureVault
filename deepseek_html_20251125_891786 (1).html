@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Vault</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-900">
+    <div id="app">
+        <!-- Locked State -->
+        <div id="locked-state" class="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center p-4">
+            <div class="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl p-8 w-full max-w-md border border-white/20">
+                <div class="text-center mb-8">
+                    <div class="inline-block p-4 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full mb-4">
+                        <i data-lucide="lock" class="w-12 h-12 text-white"></i>
+                    </div>
+                    <h1 class="text-3xl font-bold text-white mb-2">Secure Vault</h1>
+                    <p class="text-gray-300">Enter your password to unlock</p>
+                    <p class="text-xs text-gray-400 mt-2">Created by JL Magno</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <input
+                            type="password"
+                            id="password-input"
+                            placeholder="Password"
+                            class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                        />
+                    </div>
+                    
+                    <div id="error-message" class="text-red-300 text-sm text-center bg-red-500/20 py-2 rounded-lg hidden">
+                        Incorrect password!
+                    </div>
+                    
+                    <button
+                        id="unlock-button"
+                        class="w-full py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-semibold rounded-xl hover:from-yellow-500 hover:to-orange-600 transition-all transform hover:scale-105 shadow-lg"
+                    >
+                        Unlock Vault
+                    </button>
+                </div>
+                
+                <div class="text-center mt-6 pt-6 border-t border-white/10">
+                    <div id="current-time" class="text-sm text-gray-300 mb-2"></div>
+                    <p class="text-xs text-gray-400">© 2025 JL Magno. All Rights Reserved.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unlocked State -->
+        <div id="unlocked-state" class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 hidden">
+            <div class="max-w-6xl mx-auto">
+                <!-- Header -->
+                <div class="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-6 mb-6 border border-white/20">
+                    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="p-3 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl">
+                                <i data-lucide="unlock" class="w-6 h-6 text-white"></i>
+                            </div>
+                            <div>
+                                <h1 class="text-2xl font-bold text-white">Secure Vault</h1>
+                                <p class="text-gray-300 text-sm">Your secure personal storage</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="text-center md:text-right">
+                                <p class="text-xs text-gray-400">Created by</p>
+                                <p class="text-sm font-semibold text-white">JL Magno</p>
+                            </div>
+                            <button
+                                id="lock-button"
+                                class="flex items-center space-x-2 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded-xl transition-all border border-red-500/30"
+                            >
+                                <i data-lucide="lock" class="w-4 h-4"></i>
+                                <span>Lock</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6" id="tabs-container">
+                    <!-- Tabs will be generated here -->
+                </div>
+
+                <!-- Content Area -->
+                <div class="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-6 border border-white/20">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 id="active-tab-label" class="text-xl font-bold text-white">
+                            Passwords
+                        </h2>
+                        <div class="flex space-x-2" id="action-buttons">
+                            <!-- Action buttons will be generated here -->
+                        </div>
+                    </div>
+
+                    <!-- Add Form -->
+                    <div id="add-form" class="bg-white/5 rounded-xl p-4 mb-6 border border-white/10 hidden">
+                        <div class="space-y-3">
+                            <input
+                                type="text"
+                                id="item-title"
+                                placeholder="Name/Title"
+                                class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            />
+                            <input
+                                type="text"
+                                id="item-username"
+                                placeholder="Username/Email"
+                                class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            />
+                            <div class="relative">
+                                <input
+                                    type="password"
+                                    id="item-content"
+                                    placeholder="Password"
+                                    class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 pr-10"
+                                />
+                                <button type="button" id="toggle-password-form" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white">
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button
+                                    id="save-item-button"
+                                    class="flex-1 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-all"
+                                >
+                                    Save
+                                </button>
+                                <button
+                                    id="cancel-add-button"
+                                    class="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded-lg transition-all"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Items List -->
+                    <div id="items-container" class="space-y-3 max-h-96 overflow-y-auto scrollbar-hide">
+                        <!-- Items will be generated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fullscreen Image Modal -->
+        <div id="fullscreen-modal" class="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4 hidden">
+            <button
+                id="close-modal-button"
+                class="absolute top-4 right-4 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-all"
+            >
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            
+            <button
+                id="download-image-button"
+                class="absolute bottom-4 right-4 flex items-center space-x-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-full text-white transition-all shadow-lg"
+            >
+                <i data-lucide="download" class="w-5 h-5"></i>
+                <span>Download</span>
+            </button>
+
+            <div class="max-w-7xl max-h-full flex flex-col items-center">
+                <h2 id="modal-title" class="text-white text-xl font-semibold mb-4"></h2>
+                <img 
+                    id="modal-image"
+                    src="" 
+                    alt="" 
+                    class="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+                />
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // App state
+        const state = {
+            isLocked: true,
+            password: '',
+            error: '',
+            activeTab: 'passwords',
+            showPassword: {},
+            fullscreenImage: null,
+            passwords: [],
+            emails: [],
+            documents: [],
+            images: [],
+            files: [],
+            showAddForm: false,
+            newItem: { title: '', content: '', username: '' }
+        };
+
+        // DOM elements
+        const elements = {
+            lockedState: document.getElementById('locked-state'),
+            unlockedState: document.getElementById('unlocked-state'),
+            passwordInput: document.getElementById('password-input'),
+            errorMessage: document.getElementById('error-message'),
+            unlockButton: document.getElementById('unlock-button'),
+            lockButton: document.getElementById('lock-button'),
+            tabsContainer: document.getElementById('tabs-container'),
+            activeTabLabel: document.getElementById('active-tab-label'),
+            actionButtons: document.getElementById('action-buttons'),
+            addForm: document.getElementById('add-form'),
+            itemsContainer: document.getElementById('items-container'),
+            itemTitle: document.getElementById('item-title'),
+            itemUsername: document.getElementById('item-username'),
+            itemContent: document.getElementById('item-content'),
+            saveItemButton: document.getElementById('save-item-button'),
+            cancelAddButton: document.getElementById('cancel-add-button'),
+            fullscreenModal: document.getElementById('fullscreen-modal'),
+            closeModalButton: document.getElementById('close-modal-button'),
+            downloadImageButton: document.getElementById('download-image-button'),
+            modalTitle: document.getElementById('modal-title'),
+            modalImage: document.getElementById('modal-image'),
+            currentTime: document.getElementById('current-time'),
+            togglePasswordForm: document.getElementById('toggle-password-form')
+        };
+
+        // Tabs configuration
+        const tabs = [
+            { id: 'passwords', label: 'Passwords', icon: 'key', color: 'from-blue-500 to-cyan-500' },
+            { id: 'emails', label: 'Emails', icon: 'mail', color: 'from-green-500 to-emerald-500' },
+            { id: 'documents', label: 'Documents', icon: 'file-text', color: 'from-purple-500 to-pink-500' },
+            { id: 'images', label: 'Images', icon: 'image', color: 'from-orange-500 to-red-500' },
+            { id: 'files', label: 'Files', icon: 'file', color: 'from-yellow-500 to-amber-500' }
+        ];
+
+        // Initialize the app
+        function init() {
+            // Load data from localStorage
+            loadData();
+            
+            // Start time update
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            // Render tabs
+            renderTabs();
+            
+            // Render content for active tab
+            renderContent();
+            
+            // Set up event listeners
+            setupEventListeners();
+        }
+
+        // Update current time display
+        function updateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            elements.currentTime.textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        // Load data from localStorage
+        function loadData() {
+            state.passwords = JSON.parse(localStorage.getItem('vault_passwords') || '[]');
+            state.emails = JSON.parse(localStorage.getItem('vault_emails') || '[]');
+            state.documents = JSON.parse(localStorage.getItem('vault_documents') || '[]');
+            state.images = JSON.parse(localStorage.getItem('vault_images') || '[]');
+            state.files = JSON.parse(localStorage.getItem('vault_files') || '[]');
+        }
+
+        // Save data to localStorage
+        function saveData(type, data) {
+            localStorage.setItem(`vault_${type}`, JSON.stringify(data));
+        }
+
+        // Render tabs
+        function renderTabs() {
+            elements.tabsContainer.innerHTML = '';
+            
+            tabs.forEach(tab => {
+                const button = document.createElement('button');
+                button.className = `p-4 rounded-xl transition-all transform hover:scale-105 ${
+                    state.activeTab === tab.id
+                        ? `bg-gradient-to-br ${tab.color} text-white shadow-lg`
+                        : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                }`;
+                
+                button.innerHTML = `
+                    <i data-lucide="${tab.icon}" class="w-6 h-6 mx-auto mb-2"></i>
+                    <div class="text-sm font-semibold">${tab.label}</div>
+                `;
+                
+                button.addEventListener('click', () => {
+                    state.activeTab = tab.id;
+                    state.showAddForm = false;
+                    renderTabs();
+                    renderContent();
+                });
+                
+                elements.tabsContainer.appendChild(button);
+            });
+            
+            // Reinitialize icons for the new elements
+            lucide.createIcons();
+        }
+
+        // Render content based on active tab
+        function renderContent() {
+            // Update active tab label
+            const activeTab = tabs.find(t => t.id === state.activeTab);
+            elements.activeTabLabel.textContent = activeTab ? activeTab.label : '';
+            
+            // Render action buttons
+            renderActionButtons();
+            
+            // Render add form if needed
+            if (state.showAddForm) {
+                elements.addForm.classList.remove('hidden');
+                updateAddFormPlaceholders();
+            } else {
+                elements.addForm.classList.add('hidden');
+            }
+            
+            // Render items
+            renderItems();
+        }
+
+        // Render action buttons based on active tab
+        function renderActionButtons() {
+            elements.actionButtons.innerHTML = '';
+            
+            if (state.activeTab === 'documents') {
+                const label = document.createElement('label');
+                label.className = 'flex items-center space-x-2 px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 rounded-xl transition-all cursor-pointer border border-purple-500/30';
+                label.innerHTML = `
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Upload Doc</span>
+                    <input type="file" id="document-upload" class="hidden" accept=".txt,.pdf,.doc,.docx" />
+                `;
+                
+                const input = label.querySelector('input');
+                input.addEventListener('change', handleDocumentUpload);
+                
+                elements.actionButtons.appendChild(label);
+            } else if (state.activeTab === 'images') {
+                const label = document.createElement('label');
+                label.className = 'flex items-center space-x-2 px-4 py-2 bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 rounded-xl transition-all cursor-pointer border border-orange-500/30';
+                label.innerHTML = `
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Upload Images</span>
+                    <input type="file" id="image-upload" class="hidden" accept="image/*" multiple />
+                `;
+                
+                const input = label.querySelector('input');
+                input.addEventListener('change', handleMultipleImageUpload);
+                
+                elements.actionButtons.appendChild(label);
+            } else if (state.activeTab === 'files') {
+                const label = document.createElement('label');
+                label.className = 'flex items-center space-x-2 px-4 py-2 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-300 rounded-xl transition-all cursor-pointer border border-yellow-500/30';
+                label.innerHTML = `
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Upload Files</span>
+                    <input type="file" id="file-upload" class="hidden" multiple />
+                `;
+                
+                const input = label.querySelector('input');
+                input.addEventListener('change', handleFileUpload);
+                
+                elements.actionButtons.appendChild(label);
+            } else if (state.activeTab === 'passwords' || state.activeTab === 'emails') {
+                const button = document.createElement('button');
+                button.className = 'flex items-center space-x-2 px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-300 rounded-xl transition-all border border-green-500/30';
+                button.innerHTML = `
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Add New</span>
+                `;
+                
+                button.addEventListener('click', () => {
+                    state.showAddForm = !state.showAddForm;
+                    renderContent();
+                });
+                
+                elements.actionButtons.appendChild(button);
+            }
+            
+            // Reinitialize icons for the new elements
+            lucide.createIcons();
+        }
+
+        // Update add form placeholders based on active tab
+        function updateAddFormPlaceholders() {
+            if (state.activeTab === 'passwords') {
+                elements.itemUsername.placeholder = 'Username/Email';
+                elements.itemContent.placeholder = 'Password';
+                elements.itemContent.type = 'password';
+            } else if (state.activeTab === 'emails') {
+                elements.itemUsername.placeholder = 'Email Address';
+                elements.itemContent.placeholder = 'Content';
+                elements.itemContent.type = 'text';
+            }
+        }
+
+        // Render items based on active tab
+        function renderItems() {
+            elements.itemsContainer.innerHTML = '';
+            
+            const currentData = getCurrentData();
+            
+            if (currentData.length === 0) {
+                const emptyMessage = document.createElement('div');
+                emptyMessage.className = 'text-center py-12 text-gray-400';
+                emptyMessage.textContent = `No saved ${state.activeTab} yet`;
+                elements.itemsContainer.appendChild(emptyMessage);
+                return;
+            }
+            
+            currentData.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'bg-white/5 rounded-xl p-4 border border-white/10 hover:bg-white/10 transition-all';
+                
+                if (state.activeTab === 'images') {
+                    itemElement.innerHTML = `
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-semibold text-white">${item.title}</h3>
+                                <button class="delete-button text-red-400 hover:text-red-300" data-id="${item.id}">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                            <img 
+                                src="${item.content}" 
+                                alt="${item.title}" 
+                                class="w-full h-48 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity" 
+                                data-id="${item.id}"
+                            />
+                            <p class="text-xs text-gray-400 mt-2">Added: ${item.dateAdded}</p>
+                        </div>
+                    `;
+                    
+                    // Add click event for image
+                    const img = itemElement.querySelector('img');
+                    img.addEventListener('click', () => handleImageClick(item));
+                } else if (state.activeTab === 'files') {
+                    itemElement.innerHTML = `
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <div class="flex items-start space-x-3 flex-1">
+                                    <div class="text-3xl">${getFileIcon(item.fileType)}</div>
+                                    <div class="flex-1">
+                                        <h3 class="font-semibold text-white">${item.title}</h3>
+                                        <p class="text-xs text-gray-400">Size: ${item.fileSize}</p>
+                                        <p class="text-xs text-gray-400">Added: ${item.dateAdded}</p>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="download-file-button text-blue-400 hover:text-blue-300" data-id="${item.id}">
+                                        <i data-lucide="download" class="w-4 h-4"></i>
+                                    </button>
+                                    <button class="delete-button text-red-400 hover:text-red-300" data-id="${item.id}">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add click event for download button
+                    const downloadButton = itemElement.querySelector('.download-file-button');
+                    downloadButton.addEventListener('click', () => handleDownloadFile(item));
+                } else {
+                    const isPassword = state.activeTab === 'passwords';
+                    const isVisible = state.showPassword[item.id];
+                    
+                    itemElement.innerHTML = `
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="flex-1">
+                                    <h3 class="font-semibold text-white">${item.title}</h3>
+                                    ${item.username ? `<p class="text-sm text-gray-400">${item.username}</p>` : ''}
+                                </div>
+                                <button class="delete-button text-red-400 hover:text-red-300" data-id="${item.id}">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <p class="flex-1 text-gray-300 font-mono text-sm">
+                                    ${isPassword && !isVisible ? '••••••••' : item.content}
+                                </p>
+                                ${isPassword ? `
+                                    <button class="toggle-password-button text-gray-400 hover:text-white" data-id="${item.id}">
+                                        <i data-lucide="${isVisible ? 'eye-off' : 'eye'}" class="w-4 h-4"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                            <p class="text-xs text-gray-400 mt-2">Added: ${item.dateAdded}</p>
+                        </div>
+                    `;
+                    
+                    // Add click event for password visibility toggle
+                    if (isPassword) {
+                        const toggleButton = itemElement.querySelector('.toggle-password-button');
+                        toggleButton.addEventListener('click', () => togglePasswordVisibility(item.id));
+                    }
+                }
+                
+                // Add click event for delete button
+                const deleteButton = itemElement.querySelector('.delete-button');
+                deleteButton.addEventListener('click', () => handleDelete(item.id));
+                
+                elements.itemsContainer.appendChild(itemElement);
+            });
+            
+            // Reinitialize icons for the new elements
+            lucide.createIcons();
+        }
+
+        // Get current data based on active tab
+        function getCurrentData() {
+            switch(state.activeTab) {
+                case 'passwords': return state.passwords;
+                case 'emails': return state.emails;
+                case 'documents': return state.documents;
+                case 'images': return state.images;
+                case 'files': return state.files;
+                default: return [];
+            }
+        }
+
+        // Handle unlock
+        function handleUnlock(e) {
+            e.preventDefault();
+            if (elements.passwordInput.value === 'PASSWORD') {
+                state.isLocked = false;
+                state.error = '';
+                elements.passwordInput.value = '';
+                elements.lockedState.classList.add('hidden');
+                elements.unlockedState.classList.remove('hidden');
+                loadData();
+                renderTabs();
+                renderContent();
+            } else {
+                state.error = 'Incorrect password!';
+                elements.errorMessage.textContent = state.error;
+                elements.errorMessage.classList.remove('hidden');
+            }
+        }
+
+        // Handle lock
+        function handleLock() {
+            state.isLocked = true;
+            elements.passwordInput.value = '';
+            state.showAddForm = false;
+            elements.lockedState.classList.remove('hidden');
+            elements.unlockedState.classList.add('hidden');
+        }
+
+        // Handle add item
+        function handleAddItem() {
+            if (!state.newItem.title) return;
+            
+            const item = {
+                id: Date.now(),
+                ...state.newItem,
+                dateAdded: new Date().toLocaleDateString('en-US')
+            };
+
+            let updatedData;
+            switch(state.activeTab) {
+                case 'passwords':
+                    updatedData = [...state.passwords, item];
+                    state.passwords = updatedData;
+                    saveData('passwords', updatedData);
+                    break;
+                case 'emails':
+                    updatedData = [...state.emails, item];
+                    state.emails = updatedData;
+                    saveData('emails', updatedData);
+                    break;
+                case 'documents':
+                    updatedData = [...state.documents, item];
+                    state.documents = updatedData;
+                    saveData('documents', updatedData);
+                    break;
+                case 'images':
+                    updatedData = [...state.images, item];
+                    state.images = updatedData;
+                    saveData('images', updatedData);
+                    break;
+                case 'files':
+                    updatedData = [...state.files, item];
+                    state.files = updatedData;
+                    saveData('files', updatedData);
+                    break;
+            }
+
+            state.newItem = { title: '', content: '', username: '' };
+            state.showAddForm = false;
+            renderContent();
+        }
+
+        // Handle delete
+        function handleDelete(id) {
+            let updatedData;
+            switch(state.activeTab) {
+                case 'passwords':
+                    updatedData = state.passwords.filter(p => p.id !== id);
+                    state.passwords = updatedData;
+                    saveData('passwords', updatedData);
+                    break;
+                case 'emails':
+                    updatedData = state.emails.filter(e => e.id !== id);
+                    state.emails = updatedData;
+                    saveData('emails', updatedData);
+                    break;
+                case 'documents':
+                    updatedData = state.documents.filter(d => d.id !== id);
+                    state.documents = updatedData;
+                    saveData('documents', updatedData);
+                    break;
+                case 'images':
+                    updatedData = state.images.filter(i => i.id !== id);
+                    state.images = updatedData;
+                    saveData('images', updatedData);
+                    break;
+                case 'files':
+                    updatedData = state.files.filter(f => f.id !== id);
+                    state.files = updatedData;
+                    saveData('files', updatedData);
+                    break;
+            }
+            
+            renderContent();
+        }
+
+        // Handle multiple image upload
+        function handleMultipleImageUpload(e) {
+            const uploadedFiles = Array.from(e.target.files);
+            
+            uploadedFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const item = {
+                        id: Date.now() + Math.random(),
+                        title: file.name,
+                        content: event.target.result,
+                        fileType: file.type,
+                        dateAdded: new Date().toLocaleDateString('en-US')
+                    };
+
+                    const updated = [...state.images, item];
+                    state.images = updated;
+                    saveData('images', updated);
+                    renderContent();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Handle file upload
+        function handleFileUpload(e) {
+            const uploadedFiles = Array.from(e.target.files);
+            
+            uploadedFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const item = {
+                        id: Date.now() + Math.random(),
+                        title: file.name,
+                        content: event.target.result,
+                        fileType: file.type,
+                        fileSize: (file.size / 1024).toFixed(2) + ' KB',
+                        dateAdded: new Date().toLocaleDateString('en-US')
+                    };
+
+                    const updated = [...state.files, item];
+                    state.files = updated;
+                    saveData('files', updated);
+                    renderContent();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Handle document upload
+        function handleDocumentUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const item = {
+                    id: Date.now(),
+                    title: file.name,
+                    content: event.target.result,
+                    fileType: file.type,
+                    dateAdded: new Date().toLocaleDateString('en-US')
+                };
+
+                const updatedDocs = [...state.documents, item];
+                state.documents = updatedDocs;
+                saveData('documents', updatedDocs);
+                renderContent();
+            };
+            reader.readAsText(file);
+        }
+
+        // Toggle password visibility
+        function togglePasswordVisibility(id) {
+            state.showPassword[id] = !state.showPassword[id];
+            renderContent();
+        }
+
+        // Toggle password visibility in form
+        function toggleFormPasswordVisibility() {
+            const isPassword = elements.itemContent.type === 'password';
+            elements.itemContent.type = isPassword ? 'text' : 'password';
+            
+            // Update icon
+            const icon = elements.togglePasswordForm.querySelector('i');
+            icon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
+            lucide.createIcons();
+        }
+
+        // Handle image click
+        function handleImageClick(image) {
+            state.fullscreenImage = image;
+            elements.modalTitle.textContent = image.title;
+            elements.modalImage.src = image.content;
+            elements.modalImage.alt = image.title;
+            elements.fullscreenModal.classList.remove('hidden');
+        }
+
+        // Handle download image
+        function handleDownloadImage() {
+            if (!state.fullscreenImage) return;
+            
+            const link = document.createElement('a');
+            link.href = state.fullscreenImage.content;
+            link.download = state.fullscreenImage.title;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Handle download file
+        function handleDownloadFile(file) {
+            const link = document.createElement('a');
+            link.href = file.content;
+            link.download = file.title;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Get file icon
+        function getFileIcon(fileType) {
+            if (fileType.includes('pdf')) return '📄';
+            if (fileType.includes('word') || fileType.includes('document')) return '📝';
+            if (fileType.includes('excel') || fileType.includes('spreadsheet')) return '📊';
+            if (fileType.includes('powerpoint') || fileType.includes('presentation')) return '📽️';
+            if (fileType.includes('zip') || fileType.includes('rar')) return '🗜️';
+            if (fileType.includes('audio')) return '🎵';
+            if (fileType.includes('video')) return '🎬';
+            return '📁';
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Unlock button
+            elements.unlockButton.addEventListener('click', handleUnlock);
+            
+            // Password input enter key
+            elements.passwordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleUnlock(e);
+            });
+            
+            // Lock button
+            elements.lockButton.addEventListener('click', handleLock);
+            
+            // Save item button
+            elements.saveItemButton.addEventListener('click', handleAddItem);
+            
+            // Cancel add button
+            elements.cancelAddButton.addEventListener('click', () => {
+                state.showAddForm = false;
+                state.newItem = { title: '', content: '', username: '' };
+                renderContent();
+            });
+            
+            // Form inputs
+            elements.itemTitle.addEventListener('input', (e) => {
+                state.newItem.title = e.target.value;
+            });
+            
+            elements.itemUsername.addEventListener('input', (e) => {
+                state.newItem.username = e.target.value;
+            });
+            
+            elements.itemContent.addEventListener('input', (e) => {
+                state.newItem.content = e.target.value;
+            });
+            
+            // Toggle password visibility in form
+            elements.togglePasswordForm.addEventListener('click', toggleFormPasswordVisibility);
+            
+            // Close modal button
+            elements.closeModalButton.addEventListener('click', () => {
+                elements.fullscreenModal.classList.add('hidden');
+                state.fullscreenImage = null;
+            });
+            
+            // Download image button
+            elements.downloadImageButton.addEventListener('click', handleDownloadImage);
+            
+            // Close modal on background click
+            elements.fullscreenModal.addEventListener('click', (e) => {
+                if (e.target === elements.fullscreenModal) {
+                    elements.fullscreenModal.classList.add('hidden');
+                    state.fullscreenImage = null;
+                }
+            });
+        }
+
+        // Initialize the app
+        init();
+    </script>
+</body>
+</html>
